@@ -12,6 +12,48 @@ type test struct {
 	err      error
 }
 
+func TestCustomFailed(t *testing.T) {
+	for _, tst := range [...]test{
+		{
+			input:    "jeje89",
+			expected: "",
+		},
+		{
+			input:    "#Bad symbol",
+			expected: "",
+		},
+		{
+			input:    "_someinterestingstring",
+			expected: "",
+		},
+		{
+			input:    "A#Bad symbol",
+			expected: "",
+		},
+	} {
+		result, err := Unpack(tst.input)
+		require.EqualError(t, err, "invalid string")
+		require.Equal(t, tst.expected, result)
+	}
+}
+
+func TestCustomSuccessed(t *testing.T) {
+	for _, tst := range [...]test{
+		{
+			input:    "a1A1B9",
+			expected: "aABBBBBBBBB",
+		},
+		{
+			input:    "",
+			expected: "",
+		},
+	} {
+		result, err := Unpack(tst.input)
+		require.NoError(t, err)
+		require.Equal(t, tst.expected, result)
+	}
+}
+
 func TestUnpack(t *testing.T) {
 	for _, tst := range [...]test{
 		{
