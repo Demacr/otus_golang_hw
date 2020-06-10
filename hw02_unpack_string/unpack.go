@@ -18,7 +18,7 @@ func Unpack(input string) (string, error) {
 		if i == len(r) {
 			break
 		}
-		// Check correctness of new combination
+		// Check correctness of first element of new combination
 		if unicode.IsLetter(r[i]) {
 			// Check if it is a last element
 			if i+1 == len(r) {
@@ -29,17 +29,12 @@ func Unpack(input string) (string, error) {
 			// Else current index not last, so let's check what's next
 			switch next := r[i+1]; {
 			case unicode.IsLetter(next):
-				{
-					result.WriteRune(r[i])
-					i++
-					// Check if the next elemnent is digit
-				}
+				result.WriteRune(r[i])
+				i++
 			case unicode.IsDigit(next):
-				{
-					multiply, _ := strconv.Atoi(string(r[i+1]))
-					result.WriteString(strings.Repeat(string(r[i]), multiply))
-					i += 2
-				}
+				multiply, _ := strconv.Atoi(string(r[i+1]))
+				result.WriteString(strings.Repeat(string(r[i]), multiply))
+				i += 2
 			default:
 				return "", ErrInvalidString
 			}
