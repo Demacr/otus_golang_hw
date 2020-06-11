@@ -32,7 +32,7 @@ func Unpack(input string) (string, error) {
 				result.WriteRune(r[i])
 				i++
 			case unicode.IsDigit(next):
-				multiply, _ := strconv.Atoi(string(r[i+1]))
+				multiply, _ := strconv.Atoi(string(next))
 				result.WriteString(strings.Repeat(string(r[i]), multiply))
 				i += 2
 			default:
