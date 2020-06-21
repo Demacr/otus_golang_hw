@@ -85,20 +85,14 @@ func (l *list) MoveToFront(i *listItem) {
 	case l.back == i:
 		l.back.Prev.Next = nil
 		l.back = l.back.Prev
-
-		i.Prev = nil
-		i.Next = l.front
-		l.front.Prev = i
-		l.front = i
 	default:
 		i.Prev.Next = i.Next
 		i.Next.Prev = i.Prev
-
-		i.Prev = nil
-		i.Next = l.front
-		l.front.Prev = i
-		l.front = i
 	}
+	i.Prev = nil
+	i.Next = l.front
+	l.front.Prev = i
+	l.front = i
 }
 
 // NewList returns address of new list{}
