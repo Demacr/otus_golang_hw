@@ -6,8 +6,12 @@ import (
 	"sync/atomic"
 )
 
+// ErrErrorsLimitExceeded return by Run(tasks, N, M) if errors >= M
+//
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
+// Task is type of functions which runned by Run(tasks, N, M)
+//
 type Task func() error
 
 func worker(workQueue <-chan Task, syncNum *int64, wg *sync.WaitGroup) {
@@ -26,6 +30,12 @@ func worker(workQueue <-chan Task, syncNum *int64, wg *sync.WaitGroup) {
 // Run starts tasks in N goroutines and stops its work when receiving M errors from tasks
 //
 func Run(tasks []Task, N int, M int) error { //nolint
+	if N <= 0 {
+		return nil
+	}
+	if M < 0 {
+		M = 0
+	}
 	// Initialize channels and workers
 	workQueue := make(chan Task, len(tasks))
 	wg := sync.WaitGroup{}
