@@ -2,14 +2,57 @@ package hw05_parallel_execution //nolint:golint,stylecheck
 
 import (
 	"errors"
+	"sync"
+	"sync/atomic"
 )
 
+// ErrErrorsLimitExceeded return by Run(tasks, N, M) if errors >= M
+//
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
+// Task is type of functions which runned by Run(tasks, N, M)
+//
 type Task func() error
 
+func worker(workQueue <-chan Task, syncNum *int64, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for {
+		if task, ok := <-workQueue; ok && atomic.LoadInt64(syncNum) >= 0 {
+			if task() != nil {
+				atomic.AddInt64(syncNum, -1)
+			}
+		} else {
+			return
+		}
+	}
+}
+
 // Run starts tasks in N goroutines and stops its work when receiving M errors from tasks
-func Run(tasks []Task, N int, M int) error {
-	// Place your code here
-	return nil
+//
+func Run(tasks []Task, N int, M int) error { //nolint
+	if N <= 0 {
+		return nil
+	}
+	if M < 0 {
+		M = 0
+	}
+	// Initialize channels and workers
+	workQueue := make(chan Task, len(tasks))
+	wg := sync.WaitGroup{}
+	var syncNum int64 = int64(M)
+	// Start workers
+	for i := 0; i < N; i++ {
+		wg.Add(1)
+		go worker(workQueue, &syncNum, &wg)
+	}
+	// Fill work queue
+	for _, task := range tasks {
+		workQueue <- task
+	}
+	close(workQueue)
+	wg.Wait()
+	if atomic.LoadInt64(&syncNum) >= 0 {
+		return nil
+	}
+	return ErrErrorsLimitExceeded
 }
