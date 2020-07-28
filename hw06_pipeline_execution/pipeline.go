@@ -16,15 +16,11 @@ func wrapStage(stage Stage, in In, done In) (out Out) {
 			select {
 			case <-done:
 				return
-			default:
-				select {
-				case v, ok := <-in:
-					if ok {
-						shimCh <- v
-					} else {
-						return
-					}
-				default:
+			case v, ok := <-in:
+				if ok {
+					shimCh <- v
+				} else {
+					return
 				}
 			}
 		}
