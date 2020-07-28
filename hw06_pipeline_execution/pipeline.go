@@ -8,7 +8,34 @@ type (
 
 type Stage func(in In) (out Out)
 
+func wrapStage(stage Stage, in In, done In) (out Out) {
+	shimCh := make(Bi)
+	go func() {
+		defer close(shimCh)
+		for {
+			select {
+			case <-done:
+				return
+			default:
+				select {
+				case v, ok := <-in:
+					if ok {
+						shimCh <- v
+					} else {
+						return
+					}
+				default:
+				}
+			}
+		}
+	}()
+	return stage(shimCh)
+}
+
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	// Place your code here
-	return nil
+	outCh := in
+	for _, stage := range stages {
+		outCh = wrapStage(stage, outCh, done)
+	}
+	return outCh
 }
