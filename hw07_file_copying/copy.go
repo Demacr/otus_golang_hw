@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"io"
+	"log"
 	"os"
 
 	"github.com/cheggaaa/pb"
@@ -12,13 +13,6 @@ var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
-
-func min(a, b int64) int64 {
-	if a < b {
-		return a
-	}
-	return b
-}
 
 func Copy(fromPath string, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath)
@@ -45,7 +39,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	}
 	defer toFile.Close()
 
-	_, _ = fromFile.Seek(offset, 0)
+	_, _ = fromFile.Seek(offset, io.SeekStart)
 
 	// Handle limit == 0
 	if limit == 0 || fileFromStat.Size()-offset < limit {
@@ -59,26 +53,10 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	defer progressBar.Finish()
 
 	// Copying
-	var position int64
-	var N int64 = 4096
-	buffer := make([]byte, N)
-	for position < limit {
-		var read int
-		var errRead error
 
-		read, errRead = fromFile.Read(buffer[:min(N, limit-position)])
-
-		position += int64(read)
-		progressBar.Set64(position)
-
-		_, errWrite := toFile.Write(buffer[:read])
-		if errWrite != nil {
-			return err
-		}
-
-		if errRead == io.EOF {
-			break
-		}
+	_, err = io.CopyN(toFile, fromFile, limit)
+	if err != nil {
+		log.Fatal(err)
 	}
 	return nil
 }
