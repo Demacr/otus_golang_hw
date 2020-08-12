@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,7 +20,7 @@ func ReadDir(dir string) (Environment, error) {
 	env := Environment{}
 
 	for _, file := range files {
-		fileName := dir + "/" + file.Name()
+		fileName := filepath.Join(dir, file.Name())
 		if file.IsDir() || strings.Contains(fileName, "=") {
 			continue
 		}

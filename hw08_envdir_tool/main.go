@@ -1,26 +1,27 @@
 package main
 
 import (
+	"log"
 	"os"
 )
 
 func main() {
 	args := os.Args
 	if len(args) < 3 {
-		panic("too few arguments")
+		log.Fatal("too few arguments")
 	}
 
 	dir, err := os.Stat(args[1])
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	if !dir.IsDir() {
-		panic("First argument is not a dir")
+		log.Fatal("First argument is not a dir")
 	}
 
 	env, err := ReadDir(args[1])
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	rc := RunCmd(args[2:], env)
 
