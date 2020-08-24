@@ -3,7 +3,9 @@
 package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
+	"archive/zip"
 	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -36,4 +38,22 @@ func TestGetDomainStat(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
 	})
+}
+
+func BenchmarkGetDomainStat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+
+		r, _ := zip.OpenReader("testdata/users.dat.zip")
+		defer r.Close()
+
+		data, _ := r.File[0].Open()
+
+		b.StartTimer()
+		stat, _ := GetDomainStat(data, "biz")
+		if stat == nil {
+			fmt.Println("result is nil")
+		}
+		b.StopTimer()
+	}
 }

@@ -1,0 +1,26 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/Demacr/otus_golang_hw/hw10_program_optimization
+BenchmarkGetDomainStat
+BenchmarkGetDomainStat-8   	      24	 433830422 ns/op	148914177 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 427876914 ns/op	148914162 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 423886892 ns/op	148914345 B/op	 1245362 allocs/op
+BenchmarkGetDomainStat-8   	      27	 438541728 ns/op	148915601 B/op	 1245362 allocs/op
+BenchmarkGetDomainStat-8   	      24	 423399983 ns/op	148914060 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 423567806 ns/op	148914237 B/op	 1245362 allocs/op
+BenchmarkGetDomainStat-8   	      27	 432875827 ns/op	148914257 B/op	 1245362 allocs/op
+BenchmarkGetDomainStat-8   	      27	 423350446 ns/op	148913987 B/op	 1245360 allocs/op
+BenchmarkGetDomainStat-8   	      27	 427755858 ns/op	148914042 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 421490439 ns/op	148914008 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 425754710 ns/op	148914022 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 424303015 ns/op	148914044 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 423829158 ns/op	148915560 B/op	 1245362 allocs/op
+BenchmarkGetDomainStat-8   	      24	 485727426 ns/op	148913891 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      26	 435285330 ns/op	148914031 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      26	 423659902 ns/op	148914072 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 422984347 ns/op	148914024 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 424539940 ns/op	148914171 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 424628404 ns/op	148914072 B/op	 1245361 allocs/op
+BenchmarkGetDomainStat-8   	      27	 428052167 ns/op	148914038 B/op	 1245361 allocs/op
+PASS
+ok  	github.com/Demacr/otus_golang_hw/hw10_program_optimization	236.272s
