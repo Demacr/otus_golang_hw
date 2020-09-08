@@ -1,3 +1,4 @@
+//go:generate $GOPATH/bin/go-validate models.go
 package models
 
 type UserRole string
