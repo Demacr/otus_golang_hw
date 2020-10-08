@@ -1,0 +1,16 @@
+host: "localhost"
+port: 8080
+
+database: "postgresql"
+
+# In case of PgSQL
+postgresql:
+  host: "localhost"
+  port: 5432
+  login: "login"
+  password: "password"
+  database: "calendar"
+
+log:
+  file: "./calendar.log"
+  level: "warning"
