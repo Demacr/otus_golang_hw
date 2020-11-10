@@ -30,6 +30,10 @@ func (ims *InMemoryStorage) Add(event *Event) error {
 		return &ErrTimeBusy{}
 	}
 
+	if _, ok := ims.m[event.UUID]; ok {
+		return errors.New("ID exists")
+	}
+
 	ims.m[event.UUID] = event
 	return nil
 }

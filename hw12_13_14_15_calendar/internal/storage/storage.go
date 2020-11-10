@@ -2,10 +2,9 @@ package storage
 
 import (
 	"database/sql/driver"
-	"errors"
 	"time"
 
-	"github.com/Demacr/otus_golang_hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/pkg/errors"
 )
 
 type TDuration time.Duration
@@ -41,16 +40,6 @@ type ErrUserDoesntExists struct{}
 type ErrEventDoesntExists struct{}
 type ErrTimeBusy struct{}
 
-func GetStoragerByConfig(cfg *config.Config) Storager {
-	switch cfg.Database {
-	case "inmemory":
-		return NewInMemoryStorage()
-	case "postgresql":
-		return NewPgSQLStorage(cfg)
-	}
-	return nil
-}
-
 func (e *ErrUserDoesntExists) Error() string {
 	return "user doesn't exists"
 }
@@ -80,7 +69,7 @@ func (d *TDuration) Scan(src interface{}) error {
 
 	value, err := time.ParseDuration(source)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during scanning TDuration value")
 	}
 
 	*d = TDuration(value)

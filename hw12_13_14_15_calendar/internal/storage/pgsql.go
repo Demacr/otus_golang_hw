@@ -1,36 +1,22 @@
 package storage
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/Demacr/otus_golang_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/Demacr/otus_golang_hw/hw12_13_14_15_calendar/internal/logger"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Register postgres driver
+	"github.com/pkg/errors"
 )
 
 type PgSQLStorage struct {
 	db *sqlx.DB
 }
 
-func NewPgSQLStorage(cfg *config.Config) *PgSQLStorage {
-	dsn := fmt.Sprintf(
-		"port=%d host=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.PostgreSQL.Port,
-		cfg.PostgreSQL.Host,
-		cfg.PostgreSQL.Login,
-		cfg.PostgreSQL.Password,
-		cfg.PostgreSQL.Database,
-	)
-
-	db, err := sqlx.Connect("postgres", dsn)
-	if err != nil {
-		logger.Fatal(err)
-	}
+func NewPgSQLStorageStruct(db *sqlx.DB) *PgSQLStorage {
 	return &PgSQLStorage{
-		db,
+		db: db,
 	}
 }
 
@@ -44,7 +30,7 @@ func (pgs *PgSQLStorage) Add(event *Event) error {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			logger.Fatal(err)
 		}
-		return err
+		return errors.Wrap(err, "error during getting user")
 	}
 
 	logger.Debug("check user.ID")
@@ -83,7 +69,7 @@ func (pgs *PgSQLStorage) Modify(id string, event *Event) error {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			logger.Fatal(err)
 		}
-		return err
+		return errors.Wrap(err, "error during getting user")
 	}
 
 	logger.Debug("check user.ID")
@@ -114,7 +100,7 @@ func (pgs *PgSQLStorage) Modify(id string, event *Event) error {
 func (pgs *PgSQLStorage) Delete(id string) error {
 	_, err := pgs.db.Exec("DELETE FROM events WHERE uuid = $1", id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during deletion event")
 	}
 	return nil
 }

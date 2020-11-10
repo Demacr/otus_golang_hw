@@ -12,7 +12,7 @@ type StatusResponseWriter struct {
 	statusCode int
 }
 
-func middlewareLogger(next http.Handler) http.Handler {
+func MiddlewareLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Before
 		t1 := time.Now()

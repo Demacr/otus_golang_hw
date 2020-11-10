@@ -170,6 +170,7 @@ func TestEdgeCases(t *testing.T) {
 		{"UUID-4", "2020-10-10 00:00:00", TDuration(time.Hour)},       // Same time as UUID-1
 		{"UUID-5", "2020-10-10 01:40:00", TDuration(time.Minute)},     // Event within UUID-2
 		{"UUID-6", "2020-10-10 02:29:00", TDuration(time.Minute * 2)}, // Overlap last minute of UUID-3
+		{"UUID-1", "2020-10-15 00:00:00", TDuration(time.Hour)},       // Existent UUID
 	}
 	ttFailedModify := []EventCase{
 		{"UUID-1", "2020-10-10 00:01:00", TDuration(time.Hour)},           // Overlap original UUID-2 by 1 minute

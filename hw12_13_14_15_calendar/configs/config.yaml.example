@@ -1,5 +1,7 @@
 host: "localhost"
-port: 8080
+port:
+  http: 8080
+  grpc: 8081
 
 database: "postgresql"
 

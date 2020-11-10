@@ -1,6 +1,9 @@
 build:
 	go build  -o calendar ./cmd/calendar/...
 
+generate:
+	protoc --go_out=plugins=grpc:internal/grpcserver --go_opt=paths=source_relative --proto_path=api api/calendar.proto
+
 test:
 	go test -race ./... -count=10 -cover
 
@@ -11,6 +14,9 @@ install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 lint: install-lint-deps
+	golangci-lint run ./...
+
+lint-local:
 	golangci-lint run ./...
 
 migrate:
