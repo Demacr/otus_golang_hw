@@ -36,22 +36,6 @@ type Storager interface {
 	ListMonth(month time.Time) []Event
 }
 
-type ErrUserDoesntExists struct{}
-type ErrEventDoesntExists struct{}
-type ErrTimeBusy struct{}
-
-func (e *ErrUserDoesntExists) Error() string {
-	return "user doesn't exists"
-}
-
-func (e *ErrEventDoesntExists) Error() string {
-	return "event doesn't exists"
-}
-
-func (e *ErrTimeBusy) Error() string {
-	return "time is busy"
-}
-
 func (d TDuration) Value() (driver.Value, error) {
 	return []byte(time.Duration(d).String()), nil
 }

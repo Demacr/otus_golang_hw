@@ -7,13 +7,13 @@ import (
 )
 
 type InMemoryStorage struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	m  map[string]*Event
 }
 
 func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
-		sync.Mutex{},
+		sync.RWMutex{},
 		make(map[string]*Event),
 	}
 }
@@ -23,11 +23,11 @@ func (ims *InMemoryStorage) Add(event *Event) error {
 	defer ims.mu.Unlock()
 
 	if event.UUID == "" {
-		return &ErrEventDoesntExists{}
+		return errors.New("event doesn't exists")
 	}
 
 	if ims.checkTimeBusy(event, false) {
-		return &ErrTimeBusy{}
+		return errors.New("time is busy")
 	}
 
 	if _, ok := ims.m[event.UUID]; ok {
@@ -45,11 +45,11 @@ func (ims *InMemoryStorage) Modify(id string, event *Event) error {
 		return errors.New("empty ID")
 	}
 	if _, ok := ims.m[id]; !ok {
-		return &ErrEventDoesntExists{}
+		return errors.New("event doesn't exists")
 	}
 
 	if ims.checkTimeBusy(event, true) {
-		return &ErrTimeBusy{}
+		return errors.New("time is busy")
 	}
 
 	ims.m[id] = event
@@ -61,7 +61,7 @@ func (ims *InMemoryStorage) Delete(id string) error {
 	defer ims.mu.Unlock()
 
 	if _, ok := ims.m[id]; !ok {
-		return &ErrEventDoesntExists{}
+		return errors.New("event doesn't exists")
 	}
 
 	delete(ims.m, id)
@@ -69,8 +69,8 @@ func (ims *InMemoryStorage) Delete(id string) error {
 }
 
 func (ims *InMemoryStorage) ListDay(day time.Time) []Event {
-	ims.mu.Lock()
-	defer ims.mu.Unlock()
+	ims.mu.RLock()
+	defer ims.mu.RUnlock()
 
 	result := []Event{}
 
@@ -85,8 +85,8 @@ func (ims *InMemoryStorage) ListDay(day time.Time) []Event {
 }
 
 func (ims *InMemoryStorage) ListWeek(week time.Time) []Event {
-	ims.mu.Lock()
-	defer ims.mu.Unlock()
+	ims.mu.RLock()
+	defer ims.mu.RUnlock()
 
 	result := []Event{}
 
@@ -100,8 +100,8 @@ func (ims *InMemoryStorage) ListWeek(week time.Time) []Event {
 }
 
 func (ims *InMemoryStorage) ListMonth(month time.Time) []Event {
-	ims.mu.Lock()
-	defer ims.mu.Unlock()
+	ims.mu.RLock()
+	defer ims.mu.RUnlock()
 
 	result := []Event{}
 

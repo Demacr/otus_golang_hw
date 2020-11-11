@@ -33,15 +33,17 @@ type Logger struct {
 	l     *log.Logger
 }
 
+var StringLevels []string = []string{
+	"NONE",
+	"DEBUG",
+	"INFO ",
+	"WARN ",
+	"ERROR",
+	"FATAL",
+}
+
 func (level Level) String() string {
-	return []string{
-		"NONE",
-		"DEBUG",
-		"INFO ",
-		"WARN ",
-		"ERROR",
-		"FATAL",
-	}[level]
+	return StringLevels[level]
 }
 
 func NewLogger(level Level, file *os.File, l *log.Logger) Logger {
@@ -74,16 +76,16 @@ func Close() {
 
 func LevelFromString(level string) Level {
 	lowercased := strings.ToLower(level)
-	switch {
-	case strings.HasPrefix(lowercased, "deb"):
+	switch lowercased {
+	case "debug":
 		return DEBUG
-	case strings.HasPrefix(lowercased, "info"):
+	case "info":
 		return INFORMATIONAL
-	case strings.HasPrefix(lowercased, "warn"):
+	case "warn":
 		return WARNING
-	case strings.HasPrefix(lowercased, "err"):
+	case "error":
 		return ERROR
-	case strings.HasPrefix(lowercased, "fat"):
+	case "fatal":
 		return FATAL
 	default:
 		return INFORMATIONAL

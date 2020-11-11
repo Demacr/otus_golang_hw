@@ -171,6 +171,7 @@ func (cfg *Config) NewPgSQLStorage() *storage.PgSQLStorage {
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		logger.Fatal(err)
+		return nil
 	}
 	return storage.NewPgSQLStorageStruct(db)
 }

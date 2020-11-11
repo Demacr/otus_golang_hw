@@ -20,29 +20,33 @@ func NewPgSQLStorageStruct(db *sqlx.DB) *PgSQLStorage {
 	}
 }
 
-func (pgs *PgSQLStorage) Add(event *Event) error {
-	tx := pgs.db.MustBegin()
+func (pgs *PgSQLStorage) Add(event *Event) (addError error) {
+	tx, err := pgs.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "error during creating transaction")
+	}
+	defer func() {
+		if addError != nil {
+			if err := tx.Rollback(); err != nil {
+				addError = errors.Wrap(err, addError.Error())
+			}
+		}
+	}()
 
 	user := User{}
 	logger.Debug("created transaction")
-	err := tx.Get(&user, "SELECT * FROM users WHERE uuid=$1", event.UserID)
+	err = tx.Get(&user, "SELECT * FROM users WHERE uuid=$1", event.UserID)
 	if err != nil {
-		if errRollback := tx.Rollback(); errRollback != nil {
-			logger.Fatal(err)
-		}
 		return errors.Wrap(err, "error during getting user")
 	}
 
 	logger.Debug("check user.ID")
 	if user.UUID == "" {
-		if errRollback := tx.Rollback(); errRollback != nil {
-			logger.Fatal(err)
-		}
-		return &ErrUserDoesntExists{}
+		return errors.New("user doesn't exists")
 	}
 
 	logger.Debug("insert new event")
-	tx.MustExec("INSERT INTO events (uuid, header, dt, duration, description, user_id, notify_before) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+	_, err = tx.Exec("INSERT INTO events (uuid, header, dt, duration, description, user_id, notify_before) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		event.UUID,
 		event.Header,
 		event.DateTime,
@@ -51,36 +55,39 @@ func (pgs *PgSQLStorage) Add(event *Event) error {
 		user.ID,
 		event.NotificationBefore,
 	)
-
-	err = tx.Commit()
 	if err != nil {
-		logger.Fatal(err)
+		return errors.Wrap(err, "error during insert new event")
 	}
-	return nil
+
+	return tx.Commit()
 }
 
-func (pgs *PgSQLStorage) Modify(id string, event *Event) error {
-	tx := pgs.db.MustBegin()
+func (pgs *PgSQLStorage) Modify(id string, event *Event) (modifyError error) {
+	tx, err := pgs.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "error during creating transaction")
+	}
+	defer func() {
+		if modifyError != nil {
+			if err := tx.Rollback(); err != nil {
+				modifyError = errors.Wrap(err, modifyError.Error())
+			}
+		}
+	}()
 
 	user := User{}
 	logger.Debug("created transaction")
-	err := tx.Get(&user, "SELECT * FROM users WHERE uuid=$1", event.UserID)
+	err = tx.Get(&user, "SELECT * FROM users WHERE uuid=$1", event.UserID)
 	if err != nil {
-		if errRollback := tx.Rollback(); errRollback != nil {
-			logger.Fatal(err)
-		}
 		return errors.Wrap(err, "error during getting user")
 	}
 
 	logger.Debug("check user.ID")
 	if user.UUID == "" {
-		if errRollback := tx.Rollback(); errRollback != nil {
-			logger.Fatal(err)
-		}
-		return &ErrUserDoesntExists{}
+		return errors.New("user doesn't exists")
 	}
 
-	tx.MustExec("UPDATE events SET header = $2, dt = $3, duration = $4, description = $5, user_id = $6, notify_before = $7 WHERE uuid = $1",
+	_, err = tx.Exec("UPDATE events SET header = $2, dt = $3, duration = $4, description = $5, user_id = $6, notify_before = $7 WHERE uuid = $1",
 		event.UUID,
 		event.Header,
 		event.DateTime,
@@ -89,12 +96,11 @@ func (pgs *PgSQLStorage) Modify(id string, event *Event) error {
 		user.ID,
 		event.NotificationBefore,
 	)
-
-	err = tx.Commit()
 	if err != nil {
-		logger.Fatal(err)
+		return errors.Wrap(err, "error during update event")
 	}
-	return nil
+
+	return tx.Commit()
 }
 
 func (pgs *PgSQLStorage) Delete(id string) error {
@@ -140,6 +146,11 @@ func (pgs *PgSQLStorage) listCommon(t1, t2 time.Time) []Event {
 
 		// TODO: check copying object
 		result = append(result, event)
+	}
+
+	if rows.Err() != nil {
+		logger.Error(err)
+		return nil
 	}
 	return result
 }
