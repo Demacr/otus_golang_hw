@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"github.com/Demacr/otus_golang_hw/hw12_13_14_15_calendar/internal/config"
 )
 
 var Log Logger
@@ -35,33 +33,25 @@ type Logger struct {
 	l     *log.Logger
 }
 
-func (level Level) String() string {
-	return []string{
-		"NONE",
-		"DEBUG",
-		"INFO ",
-		"WARN ",
-		"ERROR",
-		"FATAL",
-	}[level]
+var StringLevels []string = []string{
+	"NONE",
+	"DEBUG",
+	"INFO ",
+	"WARN ",
+	"ERROR",
+	"FATAL",
 }
 
-func ConfigureLoggerByConfig(cfg *config.Config) {
-	fd, err := os.OpenFile(cfg.Log.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	level := levelFromString(cfg.Log.Level)
-	Log = Logger{
-		file:  fd,
+func (level Level) String() string {
+	return StringLevels[level]
+}
+
+func NewLogger(level Level, file *os.File, l *log.Logger) Logger {
+	return Logger{
 		level: level,
-		l:     log.New(fd, "", log.LstdFlags),
+		file:  file,
+		l:     l,
 	}
-	Debug = GenerateLoggerFunc(DEBUG, level)
-	Info = GenerateLoggerFunc(INFORMATIONAL, level)
-	Warning = GenerateLoggerFunc(WARNING, level)
-	Error = GenerateLoggerFunc(ERROR, level)
-	Fatal = GenerateLoggerFunc(FATAL, level)
 }
 
 func GenerateLoggerFunc(target, level Level) func(...interface{}) {
@@ -84,18 +74,18 @@ func Close() {
 	Log.file.Close()
 }
 
-func levelFromString(level string) Level {
+func LevelFromString(level string) Level {
 	lowercased := strings.ToLower(level)
-	switch {
-	case strings.HasPrefix(lowercased, "deb"):
+	switch lowercased {
+	case "debug":
 		return DEBUG
-	case strings.HasPrefix(lowercased, "info"):
+	case "info":
 		return INFORMATIONAL
-	case strings.HasPrefix(lowercased, "warn"):
+	case "warn":
 		return WARNING
-	case strings.HasPrefix(lowercased, "err"):
+	case "error":
 		return ERROR
-	case strings.HasPrefix(lowercased, "fat"):
+	case "fatal":
 		return FATAL
 	default:
 		return INFORMATIONAL

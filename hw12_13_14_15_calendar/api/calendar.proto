@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/Demacr/otus_golang_hw/hw12_13_14_15_calendar/internal/grpcserver";
+
+service Calendar {
+    rpc AddEvent(Event)        returns (Result);
+    rpc ModifyEvent(Event)     returns (Result);
+    rpc DeleteEvent(EventUUID) returns (Result);
+
+    rpc ListDay(Day)   returns (ListEvents);
+    rpc ListWeek(Day)  returns (ListEvents);
+    rpc ListMonth(Day) returns (ListEvents);
+}
+
+message Result {
+    bool ok = 1;
+}
+
+message Day {
+    string day = 1;
+}
+
+message Event {
+    string uuid = 1;
+    string header = 2;
+    google.protobuf.Timestamp datetime = 3;
+	string duration = 4;
+	string description = 5;
+	string user_uuid = 6;
+	string notify_before = 7;
+}
+
+message EventUUID {
+    string uuid = 1;
+}
+
+message ListEvents {
+    repeated Event Events = 1;
+}
